@@ -1,5 +1,5 @@
 // 15 april 2015
-package main
+package pgidl
 
 import (
 	"io"

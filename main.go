@@ -1,9 +1,8 @@
 // 15 april 2015
-package main
+package pgidl
 
 import (
 	"fmt"
-	"os"
 	"io"
 )
 
@@ -20,8 +19,4 @@ func Parse(r io.Reader, filename string) (idl IDL, errs []string) {
 		return l.idl, nil
 	}
 	return nil, errs
-}
-
-func main() {
-	fmt.Println(Parse(os.Stdin, "<stdin>"))
 }
