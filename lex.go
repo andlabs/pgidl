@@ -19,7 +19,7 @@ func newLexer(r io.Reader) *lexer {
 	l.scanner.Error = func(s *scanner.Scanner, msg string) {
 		l.Error(msg)
 	}
-	l.scanner.Mode = scanner.ScanIdents | scanner.SkipComments
+	l.scanner.Mode = scanner.ScanIdents | scanner.ScanComments | scanner.SkipComments
 	return l
 }
 
