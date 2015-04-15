@@ -37,6 +37,28 @@ func cfuncdecl(f *pgidl.Func, name string) string {
 	return "extern " + typedecl(f.Ret, fd) + ";"
 }
 
+func cfuncptrdecl(f *pgidl.Func) string {
+	name := "(*" + f.Name + ")"
+	fd := name + "(" + arglist(f.Args) + ")"
+	return typedecl(f.Ret, fd)
+}
+
+func cmethodmacro(f *pgidl.Func, typename string) string {
+	s := "#define " + typename + f.Name + "(this"
+	for _, a := range f.Args {
+		s += ", " + a.Name
+	}
+	s += ") ("
+	s += "(*((this)->" + f.Name + "))"
+	s += "((this)"
+	for _, a := range f.Args {
+		s += ", (" + a.Name + ")"
+	}
+	s += ")"
+	s += ")"
+	return s
+}
+
 func genpkgfunc(f *pgidl.Func, prefix string) {
 	fmt.Printf("%s\n", cfuncdecl(f, prefix + f.Name))
 }
@@ -47,6 +69,24 @@ func genstruct(s *pgidl.Struct, prefix string) {
 		fmt.Printf("\t%s;\n", typedecl(f.Type, f.Name))
 	}
 	fmt.Printf("};\n")
+}
+
+func geniface(i *pgidl.Interface, prefix string) {
+	fmt.Printf("struct %s%s {\n", prefix, i.Name)
+	if i.From != "" {
+		fmt.Printf("\t%s%s base;\n", prefix, i.From)
+	}
+	for _, f := range i.Fields {
+		fmt.Printf("\t%s;\n", typedecl(f.Type, f.Name))
+	}
+	for _, m := range i.Methods {
+		fmt.Printf("\t%s;\n", cfuncptrdecl(m))
+		fmt.Printf("%s\n", cmethodmacro(m, prefix + i.Name))
+	}
+	fmt.Printf("};\n")
+	fmt.Printf("#define %s%s(this) ((%s%s *) (this))\n",
+		prefix, i.Name,
+		prefix, i.Name)
 }
 
 func genpkg(p *pgidl.Package) {
@@ -67,7 +107,7 @@ func genpkg(p *pgidl.Package) {
 		case 1:
 			genstruct(p.Structs[o.Index], p.Name)
 		case 2:
-//			geniface(p.Interfaces[o.Index], p.Name)
+			geniface(p.Interfaces[o.Index], p.Name)
 		}
 	}
 }
