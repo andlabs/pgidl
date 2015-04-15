@@ -32,17 +32,14 @@ pgidl:
 			$$ = nil
 		}
 	|	pgidl package		{
-			$$ = append($$, $2)
+			$$ = append($1, $2)
 		}
 	;
 
 package:
 		PACKAGE IDENT '{' decls '}' ';'	{
+			$$ = $4
 			$$.Name = $2
-			$$.Funcs = $4.Funcs
-			$$.Structs = $4.Structs
-			$$.Interfaces = $4.Interfaces
-			$$.Order = $4.Order
 		}
 	;
 
@@ -51,6 +48,7 @@ decls:
 			$$ = new(Package)
 		}
 	|	decls funcdecl				{
+			$$ = $1
 			$$.Funcs = append($$.Funcs, $2)
 			$$.Order = append($$.Order, &Order{
 				Which:	0,
@@ -58,6 +56,7 @@ decls:
 			})
 		}
 	|	decls structdecl			{
+			$$ = $1
 			$$.Structs = append($$.Structs, $2)
 			$$.Order = append($$.Order, &Order{
 				Which:	1,
@@ -65,6 +64,7 @@ decls:
 			})
 		}
 	|	decls ifacedecl				{
+			$$ = $1
 			$$.Interfaces = append($$.Interfaces, $2)
 			$$.Order = append($$.Order, &Order{
 				Which:	2,
@@ -75,17 +75,21 @@ decls:
 
 funcdecl:
 		FUNC IDENT '(' VOID ')' ';'			{
+			$$ = new(Func)
 			$$.Name = $2
 		}
 	|	FUNC IDENT '(' VOID ')' type ';'		{
+			$$ = new(Func)
 			$$.Name = $2
 			$$.Ret = $6
 		}
 	|	FUNC IDENT '(' arglist ')' ';'			{
+			$$ = new(Func)
 			$$.Name = $2
 			$$.Args = $4
 		}
 	|	FUNC IDENT '(' arglist ')' type ';'		{
+			$$ = new(Func)
 			$$.Name = $2
 			$$.Args = $4
 			$$.Ret = $6
@@ -111,6 +115,7 @@ arglist:
 
 type:
 		IDENT		{
+			$$ = new(Type)
 			$$.Name = $1
 		}
 	|	ptrtype		{
@@ -123,32 +128,38 @@ type:
 
 ptrtype:
 		'*' IDENT		{
+			$$ = new(Type)
 			$$.Name = $2
 			$$.NumPtrs = 1
 		}
 	|	'*' ptrtype	{
+			$$ = $2
 			$$.NumPtrs++
 		}
 	;
 
 funcptrtype:
 		'*' FUNC '(' VOID ')'			{
+			$$ = new(Type)
 			$$.IsFuncPtr = true
 			$$.FuncType = &Func{}
 		}
 	|	'*' FUNC '(' VOID ')' type		{
+			$$ = new(Type)
 			$$.IsFuncPtr = true
 			$$.FuncType = &Func{
 				Ret:		$6,
 			}
 		}
 	|	'*' FUNC '(' arglist ')'			{
+			$$ = new(Type)
 			$$.IsFuncPtr = true
 			$$.FuncType = &Func{
 				Args:	$4,
 			}
 		}
 	|	'*' FUNC '(' arglist ')' type		{
+			$$ = new(Type)
 			$$.IsFuncPtr = true
 			$$.FuncType = &Func{
 				Args:	$4,
@@ -159,6 +170,7 @@ funcptrtype:
 
 structdecl:
 		STRUCT IDENT '{' fieldlist '}' ';'	{
+			$$ = new(Struct)
 			$$.Name = $2
 			$$.Fields = $4
 		}
@@ -169,12 +181,13 @@ fieldlist:
 			$$ = nil
 		}
 	|	fieldlist field		{
-			$$ = append($$, $2)
+			$$ = append($1, $2)
 		}
 	;
 
 field:
 		FIELD IDENT type ';'		{
+			$$ = new(Field)
 			$$.Name = $2
 			$$.Type = $3
 		}
@@ -182,15 +195,13 @@ field:
 
 ifacedecl:
 		INTERFACE IDENT '{' ifacememberlist '}' ';'		{
+			$$ = $4
 			$$.Name = $2
-			$$.Fields = $4.Fields
-			$$.Methods = $4.Methods
 		}
 	|	INTERFACE IDENT FROM IDENT '{' ifacememberlist '}' ';'	{
+			$$ = $6
 			$$.Name = $2
 			$$.From = $4
-			$$.Fields = $6.Fields
-			$$.Methods = $6.Methods
 		}
 	;
 
@@ -199,9 +210,9 @@ ifacememberlist:
 			$$ = new(Interface)
 		}
 	|	ifacememberlist field		{
-			$$.Fields = append($$.Fields, $2)
+			$$.Fields = append($1.Fields, $2)
 		}
 	|	ifacememberlist funcdecl		{
-			$$.Methods = append($$.Methods, $2)
+			$$.Methods = append($1.Methods, $2)
 		}
 	;
