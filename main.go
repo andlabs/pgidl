@@ -2,13 +2,26 @@
 package main
 
 import (
+	"fmt"
 	"os"
+	"io"
 )
 
 //go:generate go tool yacc pgidl.y
 
-func main() {
+func Parse(r io.Reader) (idl IDL, errs []string) {
 	yyErrorVerbose = true
-	l := newLexer(os.Stdin)
+	l := newLexer(r)
 	yyParse(l)
+	for _, e := range l.errs {
+		errs = append(errs, fmt.Sprintf("%s %s\n", e.pos, e.msg))
+	}
+	if len(errs) == 0 {
+		return l.idl, nil
+	}
+	return nil, errs
+}
+
+func main() {
+	fmt.Println(Parse(os.Stdin))
 }

@@ -2,14 +2,19 @@
 package main
 
 import (
-	"fmt"
-	"os"
 	"io"
 	"text/scanner"
 )
 
+type lexerr struct {
+	msg		string
+	pos		scanner.Position
+}
+
 type lexer struct {
 	scanner	*scanner.Scanner
+	idl		IDL
+	errs		[]lexerr
 }
 
 func newLexer(r io.Reader) *lexer {
@@ -50,6 +55,8 @@ func (l *lexer) Lex(lval *yySymType) int {
 }
 
 func (l *lexer) Error(s string) {
-	fmt.Fprintf(os.Stderr, "syntax error: %s\n", s)
-	os.Exit(1)
+	l.errs = append(l.errs, lexerr{
+		msg:		s,
+		pos:		l.scanner.Pos(),
+	})
 }
