@@ -10,27 +10,49 @@ pgidl:
 package:
 		PACKAGE IDENT '{' decls '}'	{
 			$$.Name = $2
-			$$.Decls = $4
+			$$.Funcs = $4.Funcs
+			$$.Structs = $4.Structs
+			$$.Interfaces = $4.Interfaces
+			$$.Order = $4.Order
 		}
 	;
 
 decls:
 		/* empty */
 	|	decls funcdecl				{
-			$$ = append($$, $2)
+			$$.Funcs = append($$.Funcs, $2)
+			$$.Order = append($$.Order, &Order{
+				Which:	0,
+				Index:	len($$.Funcs) - 1,
+			})
 		}
 	|	decls structdecl			{
-			$$ = append($$, $2)
+			$$.Structs = append($$.Structs, $2)
+			$$.Order = append($$.Order, &Order{
+				Which:	1,
+				Index:	len($$.Structs) - 1,
+			})
 		}
 	|	decls ifacedecl				{
-			$$ = append($$, $2)
+			$$.Interfaces = append($$.Interfaces, $2)
+			$$.Order = append($$.Order, &Order{
+				Which:	2,
+				Index:	len($$.Interfaces) - 1,
+			})
 		}
 	;
 
 funcdecl:
-		FUNC IDENT '(' VOID ')' type ';'		{
+		FUNC IDENT '(' VOID ')' ';'			{
+			$$.Name = $2
+		}
+	|	FUNC IDENT '(' VOID ')' type ';'		{
 			$$.Name = $2
 			$$.Ret = $6
+		}
+	|	FUNC IDENT '(' arglist ')' ';'			{
+			$$.Name = $2
+			$$.Args = $4
 		}
 	|	FUNC IDENT '(' arglist ')' type ';'		{
 			$$.Name = $2
@@ -53,6 +75,54 @@ arglist:
 				Name:	$3,
 				Type:	$4,
 			})
+		}
+	;
+
+type:
+		IDENT		{
+			$$.Name = $1
+		}
+	|	ptrtype		{
+			$$ = $1
+		}
+	|	funcptrtype	{
+			$$ = $1
+		}
+	;
+
+ptrtype:
+		'*' IDENT		{
+			$$.Name = 1
+			$$.NumPtrs = 1
+		}
+	|	'*' ptrtype	{
+			$$.NumPtrs++
+		}
+	;
+
+funcptrtype:
+		'*' FUNC '(' VOID ')'			{
+			$$.IsFuncPtr = true
+			$$.FuncType = &Func{}
+		}
+	|	'*' FUNC '(' VOID ')' type		{
+			$$.IsFuncPtr = true
+			$$.FuncType = &Func{
+				Ret:		$6,
+			}
+		}
+	|	'*' FUNC '(' arglist ')'			{
+			$$.IsFuncPtr = true
+			$$.FuncType = &Func{
+				Args:	$4,
+			}
+		}
+	|	'*' FUNC '(' arglist ')' type		{
+			$$.IsFuncPtr = true
+			$$.FuncType = &Func{
+				Args:	$4,
+				Ret:		$6,
+			}
 		}
 	;
 
