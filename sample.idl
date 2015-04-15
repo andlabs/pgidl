@@ -1,0 +1,20 @@
+// 15 april 2015
+package ui {
+	func FreeText(text *char);
+	struct InitOptions {
+		field debug int;
+	};
+	interface Control {
+		field Data *void;
+		field Internal *void;
+		func Destroy(void);
+		func Handle(void) uintptr_t;
+	};
+	interface Parent {
+		field Data *void;
+		func SetMainControl(c *Control);
+	};
+	interface Button from Control {
+		func OnClicked(f *func(c *Control, data *void), data *void);
+	};
+};
