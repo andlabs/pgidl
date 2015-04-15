@@ -1,5 +1,6 @@
 // 15 april 2015
 package ui {
+	raw "#include <stdint.h>";
 	func FreeText(text *char);
 	struct InitOptions {
 		field debug int;

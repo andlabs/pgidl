@@ -24,7 +24,7 @@ func newLexer(r io.Reader, filename string) *lexer {
 	l.scanner.Error = func(s *scanner.Scanner, msg string) {
 		l.Error(msg)
 	}
-	l.scanner.Mode = scanner.ScanIdents | scanner.ScanComments | scanner.SkipComments
+	l.scanner.Mode = scanner.ScanIdents | scanner.ScanStrings | scanner.ScanComments | scanner.SkipComments
 	l.scanner.Position.Filename = filename
 	return l
 }
@@ -37,6 +37,7 @@ var symtypes = map[string]int{
 	"void":		tokVOID,
 	"field":		tokFIELD,
 	"from":		tokFROM,
+	"raw":		tokRAW,
 }
 
 func (l *lexer) Lex(lval *yySymType) int {
@@ -51,6 +52,11 @@ func (l *lexer) Lex(lval *yySymType) int {
 			return tokIDENT
 		}
 		return t
+	case scanner.String:
+		lval.String = l.scanner.TokenText()
+		// frustratingly, this is generated WITH QUOTES
+		lval.String = lval.String[1:len(lval.String) - 1]
+		return tokSTRING
 	}
 	return int(r)
 }

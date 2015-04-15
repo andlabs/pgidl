@@ -14,8 +14,8 @@ package pgidl
 	Field		*Field
 	Iface		*Interface
 }
-%token <String> tokIDENT
-%token tokPACKAGE tokFUNC tokSTRUCT tokINTERFACE tokVOID tokFIELD tokFROM
+%token <String> tokIDENT tokSTRING
+%token tokPACKAGE tokFUNC tokSTRUCT tokINTERFACE tokVOID tokFIELD tokFROM tokRAW
 %type <Package> package decls
 %type <Func> funcdecl
 %type <Args> arglist
@@ -24,6 +24,7 @@ package pgidl
 %type <Fields> fieldlist
 %type <Field> field
 %type <Iface> ifacedecl ifacememberlist
+%type <String> raw
 %%
 pgidl:
 		/* empty */		{
@@ -69,14 +70,14 @@ decls:
 				Index:	len($$.Interfaces) - 1,
 			})
 		}
-/*TODO	|	decls raw					{
+	|	decls raw					{
 			$$ = $1
 			$$.Raws = append($$.Raws, $2)
 			$$.Order = append($$.Order, &Order{
 				Which:	Raws,
 				Index:	len($$.Raws) - 1,
 			})
-		}*/
+		}
 	;
 
 funcdecl:
@@ -228,7 +229,8 @@ ifacememberlist:
 		}
 	;
 
-/*TODO
 raw:
+		tokRAW tokSTRING ';'	{
+			$$ = $2
+		}
 	;
-*/

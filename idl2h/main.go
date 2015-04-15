@@ -116,7 +116,7 @@ func genpkg(p *pgidl.Package) {
 		case pgidl.Interfaces:
 			geniface(p.Interfaces[o.Index], p.Name)
 		case pgidl.Raws:
-//			fmt.Printf("%s\n", p.Raws[o.Index])
+			fmt.Printf("%s\n", p.Raws[o.Index])
 		}
 	}
 }
