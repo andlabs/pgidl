@@ -37,7 +37,7 @@ pgidl:
 	;
 
 package:
-		PACKAGE IDENT '{' decls '}'	{
+		PACKAGE IDENT '{' decls '}' ';'	{
 			$$.Name = $2
 			$$.Funcs = $4.Funcs
 			$$.Structs = $4.Structs
