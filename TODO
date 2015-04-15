@@ -1,4 +1,3 @@
 - semicolon autoinsert
 - insertion of // comments and removal of # comments in output
-- raw strings
-- const
+- raw sstring literals

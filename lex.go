@@ -38,6 +38,7 @@ var symtypes = map[string]int{
 	"field":		tokFIELD,
 	"from":		tokFROM,
 	"raw":		tokRAW,
+	"const":		tokCONST,
 }
 
 func (l *lexer) Lex(lval *yySymType) int {

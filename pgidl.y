@@ -15,7 +15,7 @@ package pgidl
 	Iface		*Interface
 }
 %token <String> tokIDENT tokSTRING
-%token tokPACKAGE tokFUNC tokSTRUCT tokINTERFACE tokVOID tokFIELD tokFROM tokRAW
+%token tokPACKAGE tokFUNC tokSTRUCT tokINTERFACE tokVOID tokFIELD tokFROM tokRAW tokCONST
 %type <Package> package decls
 %type <Func> funcdecl
 %type <Args> arglist
@@ -134,17 +134,22 @@ type:
 	;
 
 ptrtype:
-		'*' tokIDENT		{
+		'*' tokIDENT			{
 			$$ = new(Type)
 			$$.Name = $2
 			$$.NumPtrs = 1
 		}
-	|	'*' tokVOID		{
+	|	'*' tokVOID			{
 			$$ = new(Type)
 			$$.Name = "void"
 			$$.NumPtrs = 1
 		}
-	|	'*' ptrtype	{
+	|	'*' tokCONST tokIDENT	{
+			$$ = new(Type)
+			$$.Name = "const " + $3
+			$$.NumPtrs = 1
+		}
+	|	'*' ptrtype				{
 			$$ = $2
 			$$.NumPtrs++
 		}
