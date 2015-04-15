@@ -7,6 +7,8 @@ import (
 	"github.com/andlabs/pgidl"
 )
 
+var pkgtypes = map[string]string{}
+
 func typedecl(t *pgidl.Type, name string) string {
 	if t == nil {
 		return "void " + name
@@ -15,6 +17,9 @@ func typedecl(t *pgidl.Type, name string) string {
 		// TODO
 	}
 	s := t.Name + " "
+	if pkgtypes[t.Name] != "" {
+		s = pkgtypes[t.Name] + " "
+	}
 	for i := uint(0); i < t.NumPtrs; i++ {
 		s += "*"
 	}
@@ -94,11 +99,13 @@ func genpkg(p *pgidl.Package) {
 		fmt.Printf("typedef struct %s%s %s%s;\n",
 			p.Name, s.Name,
 			p.Name, s.Name)
+		pkgtypes[s.Name] = p.Name + s.Name
 	}
 	for _, i := range p.Interfaces {
 		fmt.Printf("typedef struct %s%s %s%s;\n",
 			p.Name, i.Name,
 			p.Name, i.Name)
+		pkgtypes[i.Name] = p.Name + i.Name
 	}
 	for _, o := range p.Order {
 		switch o.Which {
