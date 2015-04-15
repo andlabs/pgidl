@@ -13,7 +13,7 @@
 	Iface		*Interface
 }
 %token <String> IDENT
-%token PACKAGE FUNC STRUCT INTERFACE FIELD
+%token PACKAGE FUNC STRUCT INTERFACE VOID FIELD FROM
 %type <IDL> pgidl
 %type <Package> package decls
 %type <Func> funcdecl
@@ -25,7 +25,9 @@
 %type <Iface> ifacedecl ifacememberlist
 %%
 pgidl:
-		/* empty */
+		/* empty */		{
+			$$ = nil
+		}
 	|	pgidl package		{
 			$$ = append($$, $2)
 		}
@@ -42,7 +44,9 @@ package:
 	;
 
 decls:
-		/* empty */
+		/* empty */				{
+			$$ = new(Package)
+		}
 	|	decls funcdecl				{
 			$$.Funcs = append($$.Funcs, $2)
 			$$.Order = append($$.Order, &Order{
@@ -158,7 +162,9 @@ structdecl:
 	;
 
 fieldlist:
-		/* empty */
+		/* empty */		{
+			$$ = nil
+		}
 	|	fieldlist field		{
 			$$ = append($$, $2)
 		}
@@ -186,7 +192,9 @@ ifacedecl:
 	;
 
 ifacememberlist:
-		/* empty */
+		/* empty */				{
+			$$ = new(Interface)
+		}
 	|	ifacememberlist field		{
 			$$.Fields = append($$.Fields, $2)
 		}
