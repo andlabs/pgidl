@@ -15,8 +15,8 @@ package main
 	Field		*Field
 	Iface		*Interface
 }
-%token <String> IDENT
-%token PACKAGE FUNC STRUCT INTERFACE VOID FIELD FROM
+%token <String> tokIDENT
+%token tokPACKAGE tokFUNC tokSTRUCT tokINTERFACE tokVOID tokFIELD tokFROM
 %type <IDL> pgidl
 %type <Package> package decls
 %type <Func> funcdecl
@@ -37,7 +37,7 @@ pgidl:
 	;
 
 package:
-		PACKAGE IDENT '{' decls '}' ';'	{
+		tokPACKAGE tokIDENT '{' decls '}' ';'	{
 			$$ = $4
 			$$.Name = $2
 		}
@@ -74,21 +74,21 @@ decls:
 	;
 
 funcdecl:
-		FUNC IDENT '(' VOID ')' ';'			{
+		tokFUNC tokIDENT '(' tokVOID ')' ';'			{
 			$$ = new(Func)
 			$$.Name = $2
 		}
-	|	FUNC IDENT '(' VOID ')' type ';'		{
+	|	tokFUNC tokIDENT '(' tokVOID ')' type ';'		{
 			$$ = new(Func)
 			$$.Name = $2
 			$$.Ret = $6
 		}
-	|	FUNC IDENT '(' arglist ')' ';'			{
+	|	tokFUNC tokIDENT '(' arglist ')' ';'			{
 			$$ = new(Func)
 			$$.Name = $2
 			$$.Args = $4
 		}
-	|	FUNC IDENT '(' arglist ')' type ';'		{
+	|	tokFUNC tokIDENT '(' arglist ')' type ';'		{
 			$$ = new(Func)
 			$$.Name = $2
 			$$.Args = $4
@@ -97,7 +97,7 @@ funcdecl:
 	;
 
 arglist:
-		IDENT type	{
+		tokIDENT type	{
 			$$ = []*Arg{
 				&Arg{
 					Name:	$1,
@@ -105,7 +105,7 @@ arglist:
 				},
 			}
 		}
-	|	arglist ',' IDENT type		{
+	|	arglist ',' tokIDENT type		{
 			$$ = append($1, &Arg{
 				Name:	$3,
 				Type:	$4,
@@ -114,7 +114,7 @@ arglist:
 	;
 
 type:
-		IDENT		{
+		tokIDENT		{
 			$$ = new(Type)
 			$$.Name = $1
 		}
@@ -127,7 +127,7 @@ type:
 	;
 
 ptrtype:
-		'*' IDENT		{
+		'*' tokIDENT		{
 			$$ = new(Type)
 			$$.Name = $2
 			$$.NumPtrs = 1
@@ -139,26 +139,26 @@ ptrtype:
 	;
 
 funcptrtype:
-		'*' FUNC '(' VOID ')'			{
+		'*' tokFUNC '(' tokVOID ')'			{
 			$$ = new(Type)
 			$$.IsFuncPtr = true
 			$$.FuncType = &Func{}
 		}
-	|	'*' FUNC '(' VOID ')' type		{
+	|	'*' tokFUNC '(' tokVOID ')' type		{
 			$$ = new(Type)
 			$$.IsFuncPtr = true
 			$$.FuncType = &Func{
 				Ret:		$6,
 			}
 		}
-	|	'*' FUNC '(' arglist ')'			{
+	|	'*' tokFUNC '(' arglist ')'			{
 			$$ = new(Type)
 			$$.IsFuncPtr = true
 			$$.FuncType = &Func{
 				Args:	$4,
 			}
 		}
-	|	'*' FUNC '(' arglist ')' type		{
+	|	'*' tokFUNC '(' arglist ')' type		{
 			$$ = new(Type)
 			$$.IsFuncPtr = true
 			$$.FuncType = &Func{
@@ -169,7 +169,7 @@ funcptrtype:
 	;
 
 structdecl:
-		STRUCT IDENT '{' fieldlist '}' ';'	{
+		tokSTRUCT tokIDENT '{' fieldlist '}' ';'	{
 			$$ = new(Struct)
 			$$.Name = $2
 			$$.Fields = $4
@@ -186,7 +186,7 @@ fieldlist:
 	;
 
 field:
-		FIELD IDENT type ';'		{
+		tokFIELD tokIDENT type ';'		{
 			$$ = new(Field)
 			$$.Name = $2
 			$$.Type = $3
@@ -194,11 +194,11 @@ field:
 	;
 
 ifacedecl:
-		INTERFACE IDENT '{' ifacememberlist '}' ';'		{
+		tokINTERFACE tokIDENT '{' ifacememberlist '}' ';'		{
 			$$ = $4
 			$$.Name = $2
 		}
-	|	INTERFACE IDENT FROM IDENT '{' ifacememberlist '}' ';'	{
+	|	tokINTERFACE tokIDENT tokFROM tokIDENT '{' ifacememberlist '}' ';'	{
 			$$ = $6
 			$$.Name = $2
 			$$.From = $4

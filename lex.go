@@ -23,15 +23,14 @@ func newLexer(r io.Reader) *lexer {
 	return l
 }
 
-// TODO don't export these
 var symtypes = map[string]int{
-	"package":	PACKAGE,
-	"func":		FUNC,
-	"struct":		STRUCT,
-	"interface":	INTERFACE,
-	"void":		VOID,
-	"field":		FIELD,
-	"from":		FROM,
+	"package":	tokPACKAGE,
+	"func":		tokFUNC,
+	"struct":		tokSTRUCT,
+	"interface":	tokINTERFACE,
+	"void":		tokVOID,
+	"field":		tokFIELD,
+	"from":		tokFROM,
 }
 
 func (l *lexer) Lex(lval *yySymType) int {
@@ -43,7 +42,7 @@ func (l *lexer) Lex(lval *yySymType) int {
 		lval.String = l.scanner.TokenText()
 		t, ok := symtypes[lval.String]
 		if !ok {
-			return IDENT
+			return tokIDENT
 		}
 		return t
 	}
