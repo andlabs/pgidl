@@ -5,7 +5,6 @@ package main
 %start pgidl
 %union {
 	String	string
-	IDL		IDL
 	Package	*Package
 	Func		*Func
 	Args		[]*Arg
@@ -17,7 +16,6 @@ package main
 }
 %token <String> tokIDENT
 %token tokPACKAGE tokFUNC tokSTRUCT tokINTERFACE tokVOID tokFIELD tokFROM
-%type <IDL> pgidl
 %type <Package> package decls
 %type <Func> funcdecl
 %type <Args> arglist
@@ -29,10 +27,10 @@ package main
 %%
 pgidl:
 		/* empty */		{
-			$$ = nil
+			yylex.(*lexer).idl = nil
 		}
 	|	pgidl package		{
-			$$ = append($1, $2)
+			yylex.(*lexer).idl = append(yylex.(*lexer).idl, $2)
 		}
 	;
 
