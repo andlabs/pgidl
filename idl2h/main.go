@@ -41,13 +41,31 @@ func genpkgfunc(f *pgidl.Func, prefix string) {
 	fmt.Printf("%s\n", cfuncdecl(f, prefix + f.Name))
 }
 
+func genstruct(s *pgidl.Struct, prefix string) {
+	fmt.Printf("struct %s%s {\n", prefix, s.Name)
+	for _, f := range s.Fields {
+		fmt.Printf("\t%s;\n", typedecl(f.Type, f.Name))
+	}
+	fmt.Printf("};\n")
+}
+
 func genpkg(p *pgidl.Package) {
+	for _, s := range p.Structs {
+		fmt.Printf("typedef struct %s%s %s%s;\n",
+			p.Name, s.Name,
+			p.Name, s.Name)
+	}
+	for _, i := range p.Interfaces {
+		fmt.Printf("typedef struct %s%s %s%s;\n",
+			p.Name, i.Name,
+			p.Name, i.Name)
+	}
 	for _, o := range p.Order {
 		switch o.Which {
 		case 0:
 			genpkgfunc(p.Funcs[o.Index], p.Name)
 		case 1:
-//			genstruct(p.Structs[o.Index], p.Name)
+			genstruct(p.Structs[o.Index], p.Name)
 		case 2:
 //			geniface(p.Interfaces[o.Index], p.Name)
 		}
