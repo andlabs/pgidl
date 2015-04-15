@@ -1,4 +1,28 @@
 // 15 april 2015
+%start pgidl
+%union {
+	String	string
+	IDL		IDL
+	Package	*Package
+	Func		*Func
+	Args		[]*Arg
+	Type		*Type
+	Struct	*Struct
+	Fields	[]*Field
+	Field		*Field
+	Iface		*Interface
+}
+%token <String> IDENT
+%token PACKAGE FUNC STRUCT INTERFACE FIELD
+%type <IDL> pgidl
+%type <Package> package decls
+%type <Func> funcdecl
+%type <Args> arglist
+%type <Type> type ptrtype funcptrtype
+%type <Struct> structdecl
+%type <Fields> fieldlist
+%type <Field> field
+%type <Iface> ifacedecl ifacememberlist
 %%
 pgidl:
 		/* empty */
@@ -127,7 +151,7 @@ funcptrtype:
 	;
 
 structdecl:
-		STRUCT ident '{' fieldlist '}' ';'	{
+		STRUCT IDENT '{' fieldlist '}' ';'	{
 			$$.Name = $2
 			$$.Fields = $4
 		}
