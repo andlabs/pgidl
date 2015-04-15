@@ -49,7 +49,7 @@ decls:
 			$$ = $1
 			$$.Funcs = append($$.Funcs, $2)
 			$$.Order = append($$.Order, &Order{
-				Which:	0,
+				Which:	Funcs,
 				Index:	len($$.Funcs) - 1,
 			})
 		}
@@ -57,7 +57,7 @@ decls:
 			$$ = $1
 			$$.Structs = append($$.Structs, $2)
 			$$.Order = append($$.Order, &Order{
-				Which:	1,
+				Which:	Structs,
 				Index:	len($$.Structs) - 1,
 			})
 		}
@@ -65,10 +65,18 @@ decls:
 			$$ = $1
 			$$.Interfaces = append($$.Interfaces, $2)
 			$$.Order = append($$.Order, &Order{
-				Which:	2,
+				Which:	Interfaces,
 				Index:	len($$.Interfaces) - 1,
 			})
 		}
+/*TODO	|	decls raw					{
+			$$ = $1
+			$$.Raws = append($$.Raws, $2)
+			$$.Order = append($$.Order, &Order{
+				Which:	Raws,
+				Index:	len($$.Raws) - 1,
+			})
+		}*/
 	;
 
 funcdecl:
@@ -219,3 +227,8 @@ ifacememberlist:
 			$$.Methods = append($1.Methods, $2)
 		}
 	;
+
+/*TODO
+raw:
+	;
+*/

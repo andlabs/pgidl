@@ -109,12 +109,14 @@ func genpkg(p *pgidl.Package) {
 	}
 	for _, o := range p.Order {
 		switch o.Which {
-		case 0:
+		case pgidl.Funcs:
 			genpkgfunc(p.Funcs[o.Index], p.Name)
-		case 1:
+		case pgidl.Structs:
 			genstruct(p.Structs[o.Index], p.Name)
-		case 2:
+		case pgidl.Interfaces:
 			geniface(p.Interfaces[o.Index], p.Name)
+		case pgidl.Raws:
+//			fmt.Printf("%s\n", p.Raws[o.Index])
 		}
 	}
 }

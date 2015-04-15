@@ -8,13 +8,22 @@ type Package struct {
 	Funcs		[]*Func
 	Structs		[]*Struct
 	Interfaces		[]*Interface
+	Raws		[]string
 	Order		[]*Order
 }
 
 type Order struct {
-	Which		int
+	Which		Which
 	Index		int
 }
+
+type Which uint
+const (
+	Funcs Which = iota
+	Structs
+	Interfaces
+	Raws
+)
 
 type Func struct {
 	Name	string
