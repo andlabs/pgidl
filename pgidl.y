@@ -130,6 +130,11 @@ ptrtype:
 			$$.Name = $2
 			$$.NumPtrs = 1
 		}
+	|	'*' tokVOID		{
+			$$ = new(Type)
+			$$.Name = "void"
+			$$.NumPtrs = 1
+		}
 	|	'*' ptrtype	{
 			$$ = $2
 			$$.NumPtrs++
