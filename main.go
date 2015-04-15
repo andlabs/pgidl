@@ -9,12 +9,12 @@ import (
 
 //go:generate go tool yacc pgidl.y
 
-func Parse(r io.Reader) (idl IDL, errs []string) {
+func Parse(r io.Reader, filename string) (idl IDL, errs []string) {
 	yyErrorVerbose = true
-	l := newLexer(r)
+	l := newLexer(r, filename)
 	yyParse(l)
 	for _, e := range l.errs {
-		errs = append(errs, fmt.Sprintf("%s %s\n", e.pos, e.msg))
+		errs = append(errs, fmt.Sprintf("%s %s", e.pos, e.msg))
 	}
 	if len(errs) == 0 {
 		return l.idl, nil
@@ -23,5 +23,5 @@ func Parse(r io.Reader) (idl IDL, errs []string) {
 }
 
 func main() {
-	fmt.Println(Parse(os.Stdin))
+	fmt.Println(Parse(os.Stdin, "<stdin>"))
 }

@@ -17,7 +17,7 @@ type lexer struct {
 	errs		[]lexerr
 }
 
-func newLexer(r io.Reader) *lexer {
+func newLexer(r io.Reader, filename string) *lexer {
 	l := new(lexer)
 	l.scanner = new(scanner.Scanner)
 	l.scanner.Init(r)
@@ -25,6 +25,7 @@ func newLexer(r io.Reader) *lexer {
 		l.Error(msg)
 	}
 	l.scanner.Mode = scanner.ScanIdents | scanner.ScanComments | scanner.SkipComments
+	l.scanner.Position.Filename = filename
 	return l
 }
 
