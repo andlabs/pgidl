@@ -14,6 +14,7 @@ type lexer struct {
 
 func newLexer(r io.Reader) *lexer {
 	l := new(lexer)
+	l.scanner = new(scanner.Scanner)
 	l.scanner.Init(r)
 	l.scanner.Error = func(s *scanner.Scanner, msg string) {
 		l.Error(msg)
