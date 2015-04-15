@@ -18,8 +18,13 @@ type Order struct {
 
 type Func struct {
 	Name	string
-	Args		[]*Type
+	Args		[]*Arg
 	Ret		*Type
+}
+
+type Arg struct {
+	Name	string
+	Type		*Type
 }
 
 type Type struct {

@@ -1,4 +1,7 @@
 // 15 april 2015
+%{
+package main
+%}
 %start pgidl
 %union {
 	String	string
@@ -95,7 +98,7 @@ arglist:
 				&Arg{
 					Name:	$1,
 					Type:	$2,
-				}
+				},
 			}
 		}
 	|	arglist ',' IDENT type		{
@@ -120,7 +123,7 @@ type:
 
 ptrtype:
 		'*' IDENT		{
-			$$.Name = 1
+			$$.Name = $2
 			$$.NumPtrs = 1
 		}
 	|	'*' ptrtype	{

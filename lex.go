@@ -15,7 +15,7 @@ type lexer struct {
 func newLexer(r io.Reader) *lexer {
 	l := new(lexer)
 	l.scanner.Init(r)
-	l.scanner.Err = func(s *scanner.Scanner, msg string) {
+	l.scanner.Error = func(s *scanner.Scanner, msg string) {
 		l.Error(msg)
 	}
 	l.scanner.Mode = scanner.ScanIdents | scanner.SkipComments
@@ -39,8 +39,8 @@ func (l *lexer) Lex(lval *yySymType) int {
 	case scanner.EOF:
 		return 0
 	case scanner.Ident:
-		yySymType.String = scanner.TokenText()
-		t, ok := symtypes[yySymType.String]
+		lval.String = l.scanner.TokenText()
+		t, ok := symtypes[lval.String]
 		if !ok {
 			return IDENT
 		}
