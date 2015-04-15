@@ -14,7 +14,7 @@ func typedecl(t *pgidl.Type, name string) string {
 		return "void " + name
 	}
 	if t.IsFuncPtr {
-		// TODO
+		return cfuncptrdecl(t.FuncType, name)
 	}
 	s := t.Name + " "
 	if pkgtypes[t.Name] != "" {
@@ -32,7 +32,7 @@ func arglist(a []*pgidl.Arg) string {
 	}
 	s := typedecl(a[0].Type, a[0].Name)
 	for i := 1; i < len(a); i++ {
-		s += "," + typedecl(a[i].Type, a[i].Name)
+		s += ", " + typedecl(a[i].Type, a[i].Name)
 	}
 	return s
 }
@@ -42,8 +42,8 @@ func cfuncdecl(f *pgidl.Func, name string) string {
 	return "extern " + typedecl(f.Ret, fd) + ";"
 }
 
-func cfuncptrdecl(f *pgidl.Func) string {
-	name := "(*" + f.Name + ")"
+func cfuncptrdecl(f *pgidl.Func, name string) string {
+	name = "(*" + name + ")"
 	fd := name + "(" + arglist(f.Args) + ")"
 	return typedecl(f.Ret, fd)
 }
@@ -85,7 +85,7 @@ func geniface(i *pgidl.Interface, prefix string) {
 		fmt.Printf("\t%s;\n", typedecl(f.Type, f.Name))
 	}
 	for _, m := range i.Methods {
-		fmt.Printf("\t%s;\n", cfuncptrdecl(m))
+		fmt.Printf("\t%s;\n", cfuncptrdecl(m, m.Name))
 		fmt.Printf("%s\n", cmethodmacro(m, prefix + i.Name))
 	}
 	fmt.Printf("};\n")
