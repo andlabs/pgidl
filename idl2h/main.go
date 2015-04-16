@@ -49,15 +49,25 @@ func cfuncptrdecl(f *pgidl.Func, name string) string {
 }
 
 func cmethodmacro(f *pgidl.Func, typename string) string {
-	s := "#define " + typename + f.Name + "(this"
+	s := "#define " + typename + f.Name + "("
+	first := true
 	for _, a := range f.Args {
-		s += ", " + a.Name
+		if !first {
+			s += ", "
+		}
+		s += a.Name
+		first = false
 	}
 	s += ") ("
 	s += "(*((this)->" + f.Name + "))"
-	s += "((this)"
+	s += "("
+	first = true
 	for _, a := range f.Args {
-		s += ", (" + a.Name + ")"
+		if !first {
+			s += ", "
+		}
+		s += "(" + a.Name + ")"
+		first = false
 	}
 	s += ")"
 	s += ")"
@@ -85,6 +95,16 @@ func geniface(i *pgidl.Interface, prefix string) {
 		fmt.Printf("\t%s;\n", typedecl(f.Type, f.Name))
 	}
 	for _, m := range i.Methods {
+		// hack our this pointer in
+		m.Args = append([]*pgidl.Arg{
+			&pgidl.Arg{
+				Name:	"this",
+				Type:	&pgidl.Type{
+					Name:	prefix + i.Name,
+					NumPtrs:	1,
+				},
+			},
+		}, m.Args...)
 		fmt.Printf("\t%s;\n", cfuncptrdecl(m, m.Name))
 		fmt.Printf("%s\n", cmethodmacro(m, prefix + i.Name))
 	}
