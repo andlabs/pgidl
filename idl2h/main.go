@@ -141,6 +141,10 @@ func genpkg(p *pgidl.Package) {
 			p.Name, e.Name)
 		pkgtypes[e.Name] = p.Name + e.Name
 	}
+	// apparently we have to fully define C enumerations before we can use them...
+	for _, e := range p.Enums {
+		genenum(e, p.Name)
+	}
 	for _, o := range p.Order {
 		switch o.Which {
 		case pgidl.Funcs:
@@ -152,7 +156,7 @@ func genpkg(p *pgidl.Package) {
 		case pgidl.Raws:
 			fmt.Printf("%s\n", p.Raws[o.Index])
 		case pgidl.Enums:
-			genenum(p.Enums[o.Index], p.Name)
+			// we did them already; see above
 		}
 	}
 }
