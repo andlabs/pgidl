@@ -139,6 +139,7 @@ func genpkg(p *pgidl.Package) {
 		fmt.Printf("typedef enum %s%s %s%s;\n",
 			p.Name, e.Name,
 			p.Name, e.Name)
+		pkgtypes[e.Name] = p.Name + e.Name
 	}
 	for _, o := range p.Order {
 		switch o.Which {
