@@ -9,6 +9,7 @@ type Package struct {
 	Structs		[]*Struct
 	Interfaces		[]*Interface
 	Raws		[]string
+	Enums		[]*Enum
 	Order		[]*Order
 }
 
@@ -23,6 +24,7 @@ const (
 	Structs
 	Interfaces
 	Raws
+	Enums
 )
 
 type Func struct {
@@ -58,4 +60,9 @@ type Interface struct {
 	From	string
 	Fields	[]*Field
 	Methods	[]*Func
+}
+
+type Enum struct {
+	Name		string
+	Members		[]string
 }

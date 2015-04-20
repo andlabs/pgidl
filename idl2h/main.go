@@ -114,6 +114,14 @@ func geniface(i *pgidl.Interface, prefix string) {
 		prefix, i.Name)
 }
 
+func genenum(e *pgidl.Enum, prefix string) {
+	fmt.Printf("enum %s%s {\n", prefix, e.Name)
+	for _, m := range e.Members {
+		fmt.Printf("\t%s%s%s,\n", prefix, e.Name, m)
+	}
+	fmt.Printf("};\n")
+}
+
 func genpkg(p *pgidl.Package) {
 	for _, s := range p.Structs {
 		fmt.Printf("typedef struct %s%s %s%s;\n",
@@ -127,6 +135,11 @@ func genpkg(p *pgidl.Package) {
 			p.Name, i.Name)
 		pkgtypes[i.Name] = p.Name + i.Name
 	}
+	for _, e := range p.Enums {
+		fmt.Printf("typedef enum %s%s %s%s;\n",
+			p.Name, e.Name,
+			p.Name, e.Name)
+	}
 	for _, o := range p.Order {
 		switch o.Which {
 		case pgidl.Funcs:
@@ -137,6 +150,8 @@ func genpkg(p *pgidl.Package) {
 			geniface(p.Interfaces[o.Index], p.Name)
 		case pgidl.Raws:
 			fmt.Printf("%s\n", p.Raws[o.Index])
+		case pgidl.Enums:
+			genenum(p.Enums[o.Index], p.Name)
 		}
 	}
 }

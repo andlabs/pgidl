@@ -13,9 +13,10 @@ package pgidl
 	Fields	[]*Field
 	Field		*Field
 	Iface		*Interface
+	Enum	*Enum
 }
 %token <String> tokIDENT tokSTRING
-%token tokPACKAGE tokFUNC tokSTRUCT tokINTERFACE tokVOID tokFIELD tokFROM tokRAW tokCONST
+%token tokPACKAGE tokFUNC tokSTRUCT tokINTERFACE tokVOID tokFIELD tokFROM tokRAW tokCONST tokENUM
 %type <Package> package decls
 %type <Func> funcdecl
 %type <Args> arglist
@@ -25,6 +26,7 @@ package pgidl
 %type <Field> field
 %type <Iface> ifacedecl ifacememberlist
 %type <String> raw
+%type <Enum> enum enumlist
 %%
 pgidl:
 		/* empty */		{
@@ -76,6 +78,14 @@ decls:
 			$$.Order = append($$.Order, &Order{
 				Which:	Raws,
 				Index:	len($$.Raws) - 1,
+			})
+		}
+	|	decls enum				{
+			$$ = $1
+			$$.Enums = append($$.Enums, $2)
+			$$.Order = append($$.Order, &Order{
+				Which:	Enums,
+				Index:	len($$.Enums) - 1,
 			})
 		}
 	;
@@ -238,4 +248,27 @@ raw:
 		tokRAW tokSTRING ';'	{
 			$$ = $2
 		}
+	;
+
+enum:
+		tokENUM tokIDENT '{' enumlist optionalComma '}' ';'		{
+			$$ = $4
+			$$.Name = $2
+		}
+	;
+
+enumlist:
+		tokIDENT				{
+			$$ = &Enum{}
+			$$.Members = append($$.Members, $1)
+		}
+	|	enumlist ',' tokIDENT	{
+			$$ = $1
+			$$.Members = append($$.Members, $3)
+		}
+	;
+
+optionalComma:
+		/* empty */
+	|	','
 	;
