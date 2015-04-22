@@ -4,8 +4,11 @@ package main
 import (
 	"fmt"
 	"os"
+	"flag"
 	"github.com/andlabs/pgidl"
 )
+
+var extern = flag.String("extern", "extern", "name for extern")
 
 var pkgtypes = map[string]string{}
 
@@ -39,7 +42,7 @@ func arglist(a []*pgidl.Arg) string {
 
 func cfuncdecl(f *pgidl.Func, name string) string {
 	fd := name + "(" + arglist(f.Args) + ")"
-	return "extern " + typedecl(f.Ret, fd) + ";"
+	return *extern + " " + typedecl(f.Ret, fd) + ";"
 }
 
 func cfuncptrdecl(f *pgidl.Func, name string) string {
@@ -162,6 +165,7 @@ func genpkg(p *pgidl.Package) {
 }
 
 func main() {
+	flag.Parse()
 	idl, errs := pgidl.Parse(os.Stdin, "<stdin>")
 	if len(errs) != 0 {
 		for _, e := range errs {
