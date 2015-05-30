@@ -4,6 +4,7 @@ package pgidl
 import (
 	"io"
 	"text/scanner"
+	"strconv"
 )
 
 type lexerr struct {
@@ -55,9 +56,13 @@ func (l *lexer) Lex(lval *yySymType) int {
 		}
 		return t
 	case scanner.String:
-		lval.String = l.scanner.TokenText()
-		// frustratingly, this is generated WITH QUOTES
-		lval.String = lval.String[1:len(lval.String) - 1]
+		ss := l.scanner.TokenText()
+		// the token text is a Go string in a string!
+		ss, err := strconv.Unquote(ss)
+		if err != nil {
+			l.Error(err.Error())
+		}
+		lval.String = ss
 		return tokSTRING
 	}
 	return int(r)
